@@ -1,0 +1,44 @@
+
+ESC -> exit
+arrow keys -> move camera
+pg up / pg down -> advance / go back
+Home -> default location
+. -> change walk/fly
+
+a -> move obj left
+d -> move obj right
+w -> move object up
+x -> move object down
+i -> advance object 
+k -> object go back
+
+f -> increase fovy (zoom in)
+F -> decrease fovy (zoom out)
+
+s -> enable shading
+S -> disable shading
+l -> set lights
+L -> disable lights
+z -> enable z-buffer
+Z -> disable z-buffer
+
+alt-a -> toggle line aliasing on/off
+alt-m -> print registered materials
+alt-c -> print camera
+alt-t -> print registered textures
+alt-l -> print registered lights
+alt-v -> view modelview trfm
+alt-p -> view projection trfm
+alt-s -> view renderState
+alt-b -> draw BBox-es
+alt-2 -> check cull camera
+
+5 -> change MAG filter
+6 -> change MIN filter
+
+2 -> select parent
+3 -> select child
+4 -> select sibling
+
+0 -> animate
+
