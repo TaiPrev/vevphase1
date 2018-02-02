@@ -67,6 +67,7 @@ public:
 
 	float length() const; // vector module
 	float lengthSquare() const; // square of length
+	float eucldist(const Vector3& rhs) const; //euclidean distance
 
 	// Set vector to unit length.
 	// Returns the length of vector before normalization
