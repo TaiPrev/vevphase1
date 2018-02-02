@@ -169,6 +169,10 @@ float Vector3::lengthSquare() const {
 	return m_v[0] * m_v[0] + m_v[1] * m_v[1] + m_v[2] * m_v[2];
 }
 
+float Vector3::eucldist(const Vector3& rhs) const{
+	return sqrtf(pow((m_v[0]-rhs.m_v[0]),2.0)+pow((m_v[1]-rhs.m_v[1]),2.0)+pow((m_v[2]-rhs.m_v[2]),2.0));
+}
+
 // Set vector to unit length.
 // Returns the old length
 // If zero vector, set to UNIT_Z vector.
@@ -247,3 +251,4 @@ void Vector3::sphereCoordinates(float & alpha, float & beta) const {
 void Vector3::print() const {
 	printf("(%.4f, %.4f, %.4f)", m_v[0], m_v[1], m_v[2]);
 };
+
