@@ -18,7 +18,7 @@
 //    IREJECT don't intersect
 
 int  BBoxBBoxIntersect(const BBox *bba, const BBox *bbb ) {
-
+	
 }
 
 // @@ TODO: test if a BBox and a plane intersect.
@@ -38,7 +38,10 @@ int  BBoxPlaneIntersect (const BBox *theBBox, Plane *thePlane) {
 //    IINTERSECT intersect
 
 int BSphereBSphereIntersect(const BSphere *bsa, const BSphere *bsb ) {
-
+	float distance = bsa->m_centre.eucldist(bsb->m_centre);
+	float radius = bsa->m_radius + bsb->m_radius;
+	if (distance > radius){return IREJECT;}
+	else{return IINTERSECT;}
 }
 
 // @@ TODO: test if a BSpheres intersects a plane.
@@ -48,7 +51,12 @@ int BSphereBSphereIntersect(const BSphere *bsa, const BSphere *bsb ) {
 //    IINTERSECT intersect
 
 int BSpherePlaneIntersect(const BSphere *bs, Plane *pl) {
-
+	int side = pl.whichSide(bs->m_centre);
+	if(pl.distance(bs->m_centre) > bs->m_radius){
+		if (side < 0){return -IREJECT;}
+		else{return IREJECT;}
+	}
+	else{return IINTERSECT;}
 }
 
 // @@ TODO: test if a BSpheres intersect a BBox.
