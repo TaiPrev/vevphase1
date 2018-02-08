@@ -18,7 +18,16 @@
 //    IREJECT don't intersect
 
 int  BBoxBBoxIntersect(const BBox *bba, const BBox *bbb ) {
-	
+	if (bba->m_min[0] > bbb->m_max[0] || bbb->m_min[0] > bba->m_max[0]){
+		return IREJECT;
+	}
+	else if (bba->m_min[1] > bbb->m_max[1] || bbb->m_min[1] > bba->m_max[1]){
+		return IREJECT;
+	}
+	else if (bba->m_min[2] > bbb->m_max[2] || bbb->m_min[2] > bba->m_max[2]){
+		return IREJECT;
+	}
+	return IINTERSECT;
 }
 
 // @@ TODO: test if a BBox and a plane intersect.
@@ -28,7 +37,25 @@ int  BBoxBBoxIntersect(const BBox *bba, const BBox *bbb ) {
 //    IINTERSECT intersect
 
 int  BBoxPlaneIntersect (const BBox *theBBox, Plane *thePlane) {
+	int i = 0;
 
+	float v_mi[3]; float v_ma[3];
+	for (i=0; i<3; i++){
+		if (thePlane->m_n[i] >= 0){
+			v_mi[i] = theBBox->m_min[i];
+			v_ma[i] = theBBox->m_max[i];
+		}
+		else{
+			v_mi[i] = theBBox->m_max[i];
+			v_ma[i] = theBBox->m_min[i];
+		}
+	}
+	Vector3 *v_min = new Vector3(v_mi[0], v_mi[1], v_mi[2]);
+	Vector3 *v_max = new Vector3(v_ma[0], v_ma[1], v_ma[2]);
+
+	if (v_min->dot(thePlane->m_n) > 0){return -IREJECT;}
+	else if (v_max->dot(thePlane->m_n) < 0){return IREJECT;}
+	return IINTERSECT;
 }
 
 
@@ -51,8 +78,8 @@ int BSphereBSphereIntersect(const BSphere *bsa, const BSphere *bsb ) {
 //    IINTERSECT intersect
 
 int BSpherePlaneIntersect(const BSphere *bs, Plane *pl) {
-	int side = pl.whichSide(bs->m_centre);
-	if(pl.distance(bs->m_centre) > bs->m_radius){
+	int side = pl->whichSide(bs->m_centre);
+	if(pl->distance(bs->m_centre) > bs->m_radius){
 		if (side < 0){return -IREJECT;}
 		else{return IREJECT;}
 	}
@@ -65,7 +92,26 @@ int BSpherePlaneIntersect(const BSphere *bs, Plane *pl) {
 //    IINTERSECT intersect
 
 int BSphereBBoxIntersect(const BSphere *sphere, const BBox *box) {
-
+	int d = 0;
+	int i = 0;
+	float e;
+	float r = sphere->m_radius;
+	for (i=0; i<3; i++){
+		e = sphere->m_centre[i] - box->m_min[i];
+		if (e < 0){
+			if (e < -r){return IREJECT;}
+			d+=pow(e , 2.0);
+		}
+		else{
+			e = sphere->m_centre[i] - box->m_max[i];
+			if (e > 0){
+				if (e > r){return IREJECT;}
+				d+=pow(e, 2.0);
+			}
+		}
+	}
+	if (d > pow(r, 2.0)){return IREJECT;}
+	return IINTERSECT;
 }
 
 
