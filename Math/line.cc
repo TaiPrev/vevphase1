@@ -27,7 +27,7 @@ void Line::setFromAtoB(const Vector3 & A, const Vector3 & B) {
 	m_O = A;	//asignamos A como punto de origen de la linea
 	Vector3 aux = B-A;
 	float normal = aux.normalize();	//ya esta controlado que sea mayor que 0
-	if (normal > epsilon){
+	if (normal < epsilon){
 		printf("Los puntos estan muy cercanos.\n");	//imprimimos en caso de que la normal sea 'igual' a 0
 	}
 	m_d = aux;
