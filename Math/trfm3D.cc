@@ -191,11 +191,40 @@ void Trfm3D::clone( const Trfm3D *T ) {	clone(*T); }
 ////////////////////////////////////////////////////////////////////////////////////
 // Transform points, vectors, planes ...
 
+/*     | c1.x*s  c2.x*s  c3.x*s tr.x | */
+/* M = | c1.y*s  c2.y*s  c3.y*s tr.y | */
+/*     | c1.z*s  c2.z*s  c3.z*s tr.z | */
+/*     |   d.x     d.y     d.z   w   | */
+
+/*
+Vector3 multiplication(float type, const Vector3 & P){
+	float m[16];
+	m[0] = m_c1[0]; m[1] = m_c2[0]; m[2] = m_c3[0]; m[3] = m_tr[0]; 
+	m[4] = m_c1[1]; m[5] = m_c2[0]; m[6] = m_c3[1]; m[7] = m_tr[1]; 
+	m[8] = m_c1[2]; m[9] = m_c2[2]; m[10] = m_c3[2]; m[11] = m_tr[2]; 
+	m[12] = m_d[0]; m[13] = m_d[1]; m[14] = m_d[2]; m[15] = m_w; 
+	float p[4]; p[0] = P[0]; p[1] = P[1]; p[2] = P[2]; p[3] = type; 
+	Vector3 res;
+	res[0] = (p[0]*m[0]) + (p[1]*m[1]) + (p[2]*m[2]) + (p[3]*m[3]);
+	res[1] = (p[0]*m[4]) + (p[1]*m[5]) + (p[2]*m[6]) + (p[3]*m[7]);
+	res[2] = (p[0]*m[8]) + (p[1]*m[9]) + (p[2]*m[10]) + (p[3]*m[11]);
+	//res[3] = (p[0]*m[12]) + (p[1]*m[13]) + (p[2]*m[14]) + (p[3]*m[15]);
+	return res;
+}
+*/
 // @@ TODO. Transform a point
 
 Vector3 Trfm3D::transformPoint(const Vector3 & P) const {
+	float p[4]; p[0] = P[0]; p[1] = P[1]; p[2] = P[2]; p[3] = 1.0f; 
+	float m[16];
+	m[0] = m_c1[0]; m[1] = m_c2[0]; m[2] = m_c3[0]; m[3] = m_tr[0]; 
+	m[4] = m_c1[1]; m[5] = m_c2[0]; m[6] = m_c3[1]; m[7] = m_tr[1]; 
+	m[8] = m_c1[2]; m[9] = m_c2[2]; m[10] = m_c3[2]; m[11] = m_tr[2]; 
+	m[12] = m_d[0]; m[13] = m_d[1]; m[14] = m_d[2]; m[15] = m_w; 
 	Vector3 res;
-
+	res[0] = (p[0]*m[0]) + (p[1]*m[1]) + (p[2]*m[2]) + (p[3]*m[3]);
+	res[1] = (p[0]*m[4]) + (p[1]*m[5]) + (p[2]*m[6]) + (p[3]*m[7]);
+	res[2] = (p[0]*m[8]) + (p[1]*m[9]) + (p[2]*m[10]) + (p[3]*m[11]);
 	return res;
 }
 
@@ -204,8 +233,16 @@ Vector3 Trfm3D::transformPoint(const Vector3 & P) const {
 // Remember: Vectors don't translate
 
 Vector3 Trfm3D::transformVector(const Vector3 & V) const {
+	float p[4]; p[0] = V[0]; p[1] = V[1]; p[2] = V[2]; p[3] = 0.0f; 
+	float m[16];
+	m[0] = m_c1[0]; m[1] = m_c2[0]; m[2] = m_c3[0]; m[3] = m_tr[0]; 
+	m[4] = m_c1[1]; m[5] = m_c2[0]; m[6] = m_c3[1]; m[7] = m_tr[1]; 
+	m[8] = m_c1[2]; m[9] = m_c2[2]; m[10] = m_c3[2]; m[11] = m_tr[2]; 
+	m[12] = m_d[0]; m[13] = m_d[1]; m[14] = m_d[2]; m[15] = m_w; 
 	Vector3 res;
-
+	res[0] = (p[0]*m[0]) + (p[1]*m[1]) + (p[2]*m[2]) + (p[3]*m[3]);
+	res[1] = (p[0]*m[4]) + (p[1]*m[5]) + (p[2]*m[6]) + (p[3]*m[7]);
+	res[2] = (p[0]*m[8]) + (p[1]*m[9]) + (p[2]*m[10]) + (p[3]*m[11]);
 	return res;
 }
 
@@ -335,7 +372,9 @@ void Trfm3D::setRotZ(float angle ) {
 }
 
 /*
-  @@ TODO: Rotate by angle theta around an arbitrary axis r
+  @@ TODO: Rotate by angle theta around an arbitrary axis VV
+
+	the axis goes through the origin
 
   Positive angles are anticlockwise looking down the axis
   towards the origin.
@@ -343,6 +382,17 @@ void Trfm3D::setRotZ(float angle ) {
 */
 
 void Trfm3D::setRotVec(const Vector3 & VV, float theta ) {
+	VV.normalize();
+	float c = cosf(theta);
+	float s = sinf(theta);
+	float t = 1.0f - c;
+	m_c1 = Vector3( ((t*VV[0]*VV[0])+c), ((t*VV[0]*VV[1])+(s*VV[2])), ((t*VV[0]*VV[2])-(s*VV[1])) );
+	m_c2 = Vector3( ((t*VV[0]*VV[1])-(VV[2]*s)), ((t*VV[1]*VV[1])+c), ((t*VV[1]*VV[2])+(s*VV[0])) );
+	m_c3 = Vector3( ((t*VV[0]*VV[2])+(VV[1]*s)), ((t*VV[1]*VV[2])-(s*VV[0])), ((t*VV[2]*VV[2])+c) );
+	m_scl = 1.0f;
+	m_tr = Vector3::ZERO;
+	m_d = Vector3::ZERO;
+	m_w  = 1.0f;
 }
 
 
@@ -369,7 +419,35 @@ void Trfm3D::setScale(float scale ) {
 // @@ TODO: Rotate angle radians about an axis defined by vector and located at point
 //
 
+/*     | c1.x*s  c2.x*s  c3.x*s tr.x | */
+/* M = | c1.y*s  c2.y*s  c3.y*s tr.y | */
+/*     | c1.z*s  c2.z*s  c3.z*s tr.z | */
+/*     |   d.x     d.y     d.z   w   | */
+
+//M = m_o*matr_1*matr_2*matr_3
 void Trfm3D::setRotAxis(const Vector3 & V, const Vector3 & P, float angle ) {
+	float matr_1[16];
+	matr_1[0]=1.0f; matr_1[1]=0.0f; matr_1[2]=0.0f; matr_1[3]=-P[0];
+	matr_1[4]=0.0f; matr_1[5]=1.0f; matr_1[6]=0.0f; matr_1[7]=-P[1];
+	matr_1[8]=0.0f; matr_1[9]=0.0f; matr_1[10]=1.0f; matr_1[11]=-P[2];
+	matr_1[12]=0.0f; matr_1[13]=0.0f; matr_1[14]=0.0f; matr_1[15]=1.0f;
+
+	float c = cosf(theta);
+	float s = sinf(theta);
+	float t = 1.0f - c;
+	float matr_2[16];
+	matr_2[0]=t*V[0]*V[0]+c; 	matr_2[1]=(t*V[0]*V[1])+(s*V[2]); 	matr_2[2]=(t*V[0]*V[2])-(s*V[1]); 	matr_2[3]=0.0f;
+	matr_2[4]=(t*V[0]*V[1])-(V[2]*s); 	matr_2[5]=(t*V[1]*V[1])+c; 	matr_2[6]=(t*V[1]*V[2])+(s*V[0]); 	matr_2[7]=0.0f;
+	matr_2[8]=(t*VV[0]*VV[2])+(VV[1]*s); 	matr_2[9]=(t*VV[1]*VV[2])-(s*VV[0]); 	matr_2[10]=(t*VV[2]*VV[2])+c; matr_2[11]=0.0f;
+	matr_2[12]=0.0f; 	matr_2[13]=0.0f; 	matr_2[14]=0.0f; 	 matr_2[15]=1.0f;
+
+	float matr_3[16];
+	matr_3[0]=1.0f; matr_3[1]=0.0f; matr_3[2]=0.0f; matr_3[3]=P[0];
+	matr_3[4]=0.0f; matr_3[5]=1.0f; matr_3[6]=0.0f; matr_3[7]=P[1];
+	matr_3[8]=0.0f; matr_3[9]=0.0f; matr_3[10]=1.0f; matr_3[11]=P[2];
+	matr_3[12]=0.0f; matr_3[13]=0.0f; matr_3[14]=0.0f; matr_3[15]=1.0f;
+
+	float res[16];
 }
 
 
