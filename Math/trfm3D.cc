@@ -193,9 +193,25 @@ void Trfm3D::clone( const Trfm3D *T ) {	clone(*T); }
 
 // @@ TODO. Transform a point
 
-Vector3 Trfm3D::transformPoint(const Vector3 & P) const {
-	Vector3 res;
+/*     | c1.x*s  c2.x*s  c3.x*s tr.x | */
+/* M = | c1.y*s  c2.y*s  c3.y*s tr.y | */
+/*     | c1.z*s  c2.z*s  c3.z*s tr.z | */
+/*     |   d.x     d.y     d.z   w   | */
 
+
+Vector3 Trfm3D::transformPoint(const Vector3 & P) const {
+	float p[4]; p[0] = P[0]; p[1] = P[1]; p[2] = P[2]; p[3] = 1.0f; 
+	float m[16];
+	m[0] = m_c1[0]*m_scl; m[1] = m_c2[0]*m_scl; m[2] = m_c3[0]*m_scl; m[3] = m_tr[0]; 
+	m[4] = m_c1[1]*m_scl; m[5] = m_c2[0]*m_scl; m[6] = m_c3[1]*m_scl; m[7] = m_tr[1]; 
+	m[8] = m_c1[2]*m_scl; m[9] = m_c2[2]*m_scl; m[10] = m_c3[2]*m_scl; m[11] = m_tr[2]; 
+	m[12] = m_d[0]; m[13] = m_d[1]; m[14] = m_d[2]; m[15] = m_w; 
+	Vector3 res;
+	printf( "%f %f %f  \n",
+			m[3], m[7], m[11] );
+	res[0] = (p[0]*m[0]) + (p[1]*m[1]) + (p[2]*m[2]) + (p[3]*m[3]);
+	res[1] = (p[0]*m[4]) + (p[1]*m[5]) + (p[2]*m[6]) + (p[3]*m[7]);
+	res[2] = (p[0]*m[8]) + (p[1]*m[9]) + (p[2]*m[10]) + (p[3]*m[11]);
 	return res;
 }
 
@@ -204,8 +220,16 @@ Vector3 Trfm3D::transformPoint(const Vector3 & P) const {
 // Remember: Vectors don't translate
 
 Vector3 Trfm3D::transformVector(const Vector3 & V) const {
+	float p[4]; p[0] = V[0]; p[1] = V[1]; p[2] = V[2]; p[3] = 0.0f; 
+	float m[16];
+	m[0] = m_c1[0]*m_scl; m[1] = m_c2[0]*m_scl; m[2] = m_c3[0]*m_scl; m[3] = m_tr[0]; 
+	m[4] = m_c1[1]*m_scl; m[5] = m_c2[0]*m_scl; m[6] = m_c3[1]*m_scl; m[7] = m_tr[1]; 
+	m[8] = m_c1[2]*m_scl; m[9] = m_c2[2]*m_scl; m[10] = m_c3[2]*m_scl; m[11] = m_tr[2]; 
+	m[12] = m_d[0]; m[13] = m_d[1]; m[14] = m_d[2]; m[15] = m_w; 
 	Vector3 res;
-
+	res[0] = (p[0]*m[0]) + (p[1]*m[1]) + (p[2]*m[2]) + (p[3]*m[3]);
+	res[1] = (p[0]*m[4]) + (p[1]*m[5]) + (p[2]*m[6]) + (p[3]*m[7]);
+	res[2] = (p[0]*m[8]) + (p[1]*m[9]) + (p[2]*m[10]) + (p[3]*m[11]);
 	return res;
 }
 
@@ -335,7 +359,9 @@ void Trfm3D::setRotZ(float angle ) {
 }
 
 /*
-  @@ TODO: Rotate by angle theta around an arbitrary axis r
+  @@ TODO: Rotate by angle theta around an arbitrary axis VV
+
+	the axis goes through the origin
 
   Positive angles are anticlockwise looking down the axis
   towards the origin.
@@ -343,6 +369,20 @@ void Trfm3D::setRotZ(float angle ) {
 */
 
 void Trfm3D::setRotVec(const Vector3 & VV, float theta ) {
+	
+	Vector3 *R = new Vector3(VV);
+	R->normalize();
+	float V[3] = {R->x(), R->y(), R->z()};
+	float c = cosf(theta);
+	float s = sinf(theta);
+	float t = 1.0f - c;
+	m_c1 = Vector3( ((t*V[0]*V[0])+c), ((t*V[0]*V[1])+(s*V[2])), ((t*V[0]*V[2])-(s*V[1])) );
+	m_c2 = Vector3( ((t*V[0]*V[1])-(V[2]*s)), ((t*V[1]*V[1])+c), ((t*V[1]*V[2])+(s*V[0])) );
+	m_c3 = Vector3( ((t*V[0]*V[2])+(V[1]*s)), ((t*V[1]*V[2])-(s*V[0])), ((t*V[2]*V[2])+c) );
+	m_scl = 1.0f;
+	m_tr = Vector3::ZERO;
+	m_d = Vector3::ZERO;
+	m_w  = 1.0f;
 }
 
 
@@ -369,7 +409,21 @@ void Trfm3D::setScale(float scale ) {
 // @@ TODO: Rotate angle radians about an axis defined by vector and located at point
 //
 
+/*     | c1.x*s  c2.x*s  c3.x*s tr.x | */
+/* M = | c1.y*s  c2.y*s  c3.y*s tr.y | */
+/*     | c1.z*s  c2.z*s  c3.z*s tr.z | */
+/*     |   d.x     d.y     d.z   w   | */
+
+//M = m_o*matr_1*matr_2*matr_3
+
 void Trfm3D::setRotAxis(const Vector3 & V, const Vector3 & P, float angle ) {
+	Trfm3D auxTrfm(*this);
+	//auxTrfm.print();
+	auxTrfm.m_tr[0] += -P[0]; auxTrfm.m_tr[1] += -P[1]; auxTrfm.m_tr[2] += -P[2];
+	auxTrfm.setRotVec(V, angle);
+	auxTrfm.m_tr[0] += P[0]; auxTrfm.m_tr[1] += P[1]; auxTrfm.m_tr[2] += P[2];
+	//auxTrfm.print();
+	swap(auxTrfm);
 }
 
 
@@ -519,6 +573,8 @@ void Trfm3D::addRotAxis(const Vector3 & V,
 						const Vector3 & P,
 						float angle) {
 	static Trfm3D localT;
+	localT.setRotAxis(V, P, angle );
+	add(localT);
 }
 
 void Trfm3D::addTrans(const Vector3 & T) {
