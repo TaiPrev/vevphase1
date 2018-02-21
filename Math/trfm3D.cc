@@ -207,8 +207,6 @@ Vector3 Trfm3D::transformPoint(const Vector3 & P) const {
 	m[8] = m_c1[2]*m_scl; m[9] = m_c2[2]*m_scl; m[10] = m_c3[2]*m_scl; m[11] = m_tr[2]; 
 	m[12] = m_d[0]; m[13] = m_d[1]; m[14] = m_d[2]; m[15] = m_w; 
 	Vector3 res;
-	printf( "%f %f %f  \n",
-			m[3], m[7], m[11] );
 	res[0] = (p[0]*m[0]) + (p[1]*m[1]) + (p[2]*m[2]) + (p[3]*m[3]);
 	res[1] = (p[0]*m[4]) + (p[1]*m[5]) + (p[2]*m[6]) + (p[3]*m[7]);
 	res[2] = (p[0]*m[8]) + (p[1]*m[9]) + (p[2]*m[10]) + (p[3]*m[11]);
@@ -346,6 +344,7 @@ void Trfm3D::setRotY(float angle ) {
 	m_tr = Vector3::ZERO;
 	m_d = Vector3::ZERO;
 	m_w  = 1.0f;
+	print();
 }
 
 void Trfm3D::setRotZ(float angle ) {
@@ -380,7 +379,9 @@ void Trfm3D::setRotVec(const Vector3 & VV, float theta ) {
 	m_c2 = Vector3( ((t*V[0]*V[1])-(V[2]*s)), ((t*V[1]*V[1])+c), ((t*V[1]*V[2])+(s*V[0])) );
 	m_c3 = Vector3( ((t*V[0]*V[2])+(V[1]*s)), ((t*V[1]*V[2])-(s*V[0])), ((t*V[2]*V[2])+c) );
 	m_scl = 1.0f;
-	m_tr = Vector3::ZERO;
+	if(m_tr.isZero()){
+		m_tr = Vector3::ZERO;
+	}
 	m_d = Vector3::ZERO;
 	m_w  = 1.0f;
 }
@@ -417,12 +418,10 @@ void Trfm3D::setScale(float scale ) {
 //M = m_o*matr_1*matr_2*matr_3
 
 void Trfm3D::setRotAxis(const Vector3 & V, const Vector3 & P, float angle ) {
-	Trfm3D auxTrfm(*this);
-	//auxTrfm.print();
+	Trfm3D auxTrfm(*this); //cambiar por una matriz init
 	auxTrfm.m_tr[0] += -P[0]; auxTrfm.m_tr[1] += -P[1]; auxTrfm.m_tr[2] += -P[2];
 	auxTrfm.setRotVec(V, angle);
 	auxTrfm.m_tr[0] += P[0]; auxTrfm.m_tr[1] += P[1]; auxTrfm.m_tr[2] += P[2];
-	//auxTrfm.print();
 	swap(auxTrfm);
 }
 
