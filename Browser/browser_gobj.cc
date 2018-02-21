@@ -112,7 +112,7 @@ static void Keyboard_alt(unsigned char key) {
 
 // General keyboard dispatcher
 static void Keyboard (unsigned char key, int x, int y) {
-	float theta = 1.0;
+	float theta = 1.0 * Constants::degree_to_rad;
 
 	int key_mod = glutGetModifiers();
 	if (key_mod == GLUT_ACTIVE_ALT) {
@@ -138,20 +138,24 @@ static void Keyboard (unsigned char key, int x, int y) {
 			glDisable(GL_CULL_FACE);
 			break;
 		case 'a':
-			T->addRotY(-angle_step);
-			//T->addRotAxis(Vector3(0.0, 1.0, 0.0), Vector3(1.0, 1.0, 1.0), -theta);
+			//T->addRotY(-angle_step);
+			//T->print();
+			T->addRotAxis(Vector3(0.0, 1.0, 0.0), Vector3(1.0, 1.0, 1.0), -theta);
+			//T->print();
 			break;
 		case 'd':
-			T->addRotY(angle_step);
-			//T->addRotAxis(Vector3(0.0, 1.0, 0.0), Vector3(1.0, 1.0, 1.0), theta);
+			//T->addRotY(angle_step);
+			//T->print();
+			T->addRotAxis(Vector3(0.0, 1.0, 0.0), Vector3(1.0, 1.0, 1.0), theta);
+			//T->print();
 			break;
 		case 'w':
-			T->addRotX(-angle_step);
-			//T->addRotAxis(Vector3(1.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0), -theta);			
+			//T->addRotX(-angle_step);
+			T->addRotAxis(Vector3(1.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0), -theta);			
 			break;
 		case 'x':
-			T->addRotX(angle_step);
-            		//T->addRotAxis(Vector3(1.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0), theta);
+			//T->addRotX(angle_step);
+            T->addRotAxis(Vector3(1.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0), theta);
 			break;
 		case 'i':
 			T->addTrans(Vector3(0.0, 0.0, -step));
