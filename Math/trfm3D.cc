@@ -419,9 +419,15 @@ void Trfm3D::setScale(float scale ) {
 
 void Trfm3D::setRotAxis(const Vector3 & V, const Vector3 & P, float angle ) {
 	Trfm3D auxTrfm(*this); //cambiar por una matriz init
-	auxTrfm.m_tr[0] += -P[0]; auxTrfm.m_tr[1] += -P[1]; auxTrfm.m_tr[2] += -P[2];
+	auxTrfm.setUnit();
+	//auxTrfm.m_tr[0] += -P[0]; auxTrfm.m_tr[1] += -P[1]; auxTrfm.m_tr[2] += -P[2];
+	auxTrfm.setTrans((-1)*P);
+	auxTrfm.print();
 	auxTrfm.setRotVec(V, angle);
-	auxTrfm.m_tr[0] += P[0]; auxTrfm.m_tr[1] += P[1]; auxTrfm.m_tr[2] += P[2];
+	auxTrfm.print();
+	//auxTrfm.m_tr[0] += P[0]; auxTrfm.m_tr[1] += P[1]; auxTrfm.m_tr[2] += P[2];
+	auxTrfm.addTrans(P);
+	auxTrfm.print();
 	swap(auxTrfm);
 }
 
