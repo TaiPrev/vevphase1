@@ -268,8 +268,12 @@ void Node::addChild(Node *theChild) {
 	if (theChild == 0) return;
 	if (m_gObject) {
 		// node has a gObject, so print warning
+		//can't add this one
+		printf("This is a gObject, not an admisible child. \n");
 	} else {
 		// node does not have gObject, so attach child
+		//*this IS THE PARENT of theChild
+		this.m_children.push_back(theChild);
 	}
 }
 
@@ -372,11 +376,32 @@ void Node::updateGS() {
 // Note:
 //    See Recipe 1 in for knowing how to iterate through children.
 
+// Recipe 1: iterate through children:
+//
+//    for(list<Node *>::iterator it = m_children.begin(), end = m_children.end();
+//        it != end; ++it) {
+//        Node *theChild = *it;
+//        theChild->print(); // or any other thing
+//    }
+
 void Node::draw() {
 	RenderState *rs = RenderState::instance();
 	// Print BBoxes
 	if(rs->getBBoxDraw() || m_drawBBox)
 		BBoxGL::draw( m_containerWC );
+	//RECIPE1
+	rs->addTrfm(RenderState::modelview, T); 
+	rs->push(RenderState::modelview);
+	for(list<Node *>::iterator it = m_children.begin(), end = m_children.end(); it != end; ++it) {
+        Node *theChild = *it;
+        if (theChild->m_gObject){
+        	theChild->draw();
+        }
+        else{
+        	
+        }
+    }
+    rs->pop(RenderState::modelview);
 }
 
 // Set culled state of a node's children
