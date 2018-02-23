@@ -273,7 +273,7 @@ void Node::addChild(Node *theChild) {
 	} else {
 		// node does not have gObject, so attach child
 		//*this IS THE PARENT of theChild
-		this.m_children.push_back(theChild);
+		this->m_children.push_back(theChild);
 	}
 }
 
@@ -386,22 +386,26 @@ void Node::updateGS() {
 
 void Node::draw() {
 	RenderState *rs = RenderState::instance();
-	// Print BBoxes
-	if(rs->getBBoxDraw() || m_drawBBox)
-		BBoxGL::draw( m_containerWC );
-	//RECIPE1
-	rs->addTrfm(RenderState::modelview, T); 
-	rs->push(RenderState::modelview);
-	for(list<Node *>::iterator it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-        Node *theChild = *it;
-        if (theChild->m_gObject){
+	// Print BBoxes	
+	//if(rs->getBBoxDraw() || m_drawBBox)
+	//	BBoxGL::draw( m_containerWC );
+	
+	//m_placement->print();
+
+	rs->push(rs->modelview);
+	rs->addTrfm(rs->modelview, m_placement); 
+	
+	if (m_gObject==0){
+		for(list<Node *>::iterator it = m_children.begin(), end = m_children.end(); it != end; ++it) {
+        	Node *theChild = *it;
         	theChild->draw();
-        }
-        else{
-        	
-        }
-    }
-    rs->pop(RenderState::modelview);
+    	}
+	}
+	else {
+		m_gObject->draw();
+	}
+
+    rs->pop(rs->modelview);
 }
 
 // Set culled state of a node's children
