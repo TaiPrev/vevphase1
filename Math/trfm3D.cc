@@ -344,7 +344,7 @@ void Trfm3D::setRotY(float angle ) {
 	m_tr = Vector3::ZERO;
 	m_d = Vector3::ZERO;
 	m_w  = 1.0f;
-	print();
+	//print();
 }
 
 void Trfm3D::setRotZ(float angle ) {
@@ -417,6 +417,9 @@ void Trfm3D::setScale(float scale ) {
 
 //M = m_o*matr_1*matr_2*matr_3
 
+//ATENCIÓN:
+//REVISADO EN CLASE
+//SOLO FALLARÍA EN CASO DE CONCATENACIÓN DE ROTACIÓNES
 void Trfm3D::setRotAxis(const Vector3 & V, const Vector3 & P, float angle ) {
 	Trfm3D auxTrfm(*this); //cambiar por una matriz init
 	auxTrfm.setUnit();
