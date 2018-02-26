@@ -10,6 +10,8 @@ varying vec4 f_color;
 void main() {
 
 	f_color = vec4(1.0);
-	vec4 vpos = vec4(v_position, 1.0);
+	//vec4 vpos = vec4(v_position, 1.0);
+	//M(camara -> ventana) * M(modelo -> camara) * P(modelo)
+	vec4 vpos = cameraToClipMatrix * modelToCameraMatrix * vec4(v_position, 1.0);
 	gl_Position = vpos;
 }
